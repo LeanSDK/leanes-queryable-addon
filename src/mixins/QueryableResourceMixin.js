@@ -20,9 +20,8 @@ import type {
 export default (Module) => {
   const {
     Resource,
-    assert,
-    initializeMixin, meta, method, action, chains,
-    Utils: { _, joi }
+    initializeMixin, meta, method, action, chains, property,
+    Utils: { _, joi, assert }
   } = Module.NS;
 
   const MAX_LIMIT = 50;
@@ -36,6 +35,9 @@ export default (Module) => {
       this.initialHook('parseBody', {
         only: ['query']
       });
+      this.beforeHook('getQuery', {
+        only: ['list']
+      });
       this.beforeHook('showNoHiddenByDefault', {
         only: ['list']
       });
@@ -43,28 +45,34 @@ export default (Module) => {
     class Mixin extends BaseClass {
       @meta static object = {};
 
-      @method async writeTransaction(asAction: string, aoContext: ContextInterface): Promise<boolean> {
-        let result = await super.writeTransaction(asAction, aoContext);
-        if (result) {
-          if (asAction === 'query') {
-            const parse = require('co-body'); // TODO
-            const body = await parse(aoContext.req);
-            const { query } = body != null ? body : {};
-            if (query != null) {
-              const key = _.findKey(query, (v, k) =>
-                k === '$patch' || k === '$remove'
-              );
-              result = key != null;
-            }
-          }
-        }
-        return result;
+      @property needsLimitation: boolean = true;
+      @property listQuery: object = {};
+
+      @method getQuery(...args) {
+        this.listQuery = JSON.parse(this.context.query['query'] || "{}");
+        return args;
       }
 
+      // удалить т.к. узкоспециализированный метод и может быть вынесен в миксин для работы с транзакциями в аддоне поддерживающем транзакции
+      // @method async writeTransaction(asAction: string, aoContext: ContextInterface): Promise<boolean> {
+      //   let result = await super.writeTransaction(asAction, aoContext);
+      //   if (result) {
+      //     if (asAction === 'query') {
+      //       const parse = require('co-body'); // TODO
+      //       const body = await parse(aoContext.req);
+      //       const { query } = body != null ? body : {};
+      //       if (query != null) {
+      //         const key = _.findKey(query, (v, k) =>
+      //           k === '$patch' || k === '$remove'
+      //         );
+      //         result = key != null;
+      //       }
+      //     }
+      //   }
+      //   return result;
+      // }
+
       @method async showNoHiddenByDefault(...args) {
-        if (this.listQuery == null) {
-          this.listQuery = {};
-        }
         if (this.listQuery.$filter != null) {
           if (!/.*\@doc\.isHidden.*/.test(JSON.stringify(this.listQuery.$filter))) {
             this.listQuery.$filter = {
