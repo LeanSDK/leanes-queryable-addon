@@ -2,7 +2,8 @@ const EventEmitter = require('events');
 const { expect, assert } = require('chai');
 const sinon = require('sinon');
 const _ = require('lodash');
-const LeanES = require("../../../src/leanes/index.js").default;
+const QueryableAddon = ("../../../src/index.js").default;
+const LeanES = require('leanes').default;
 
 const hasProp = {}.hasOwnProperty;
 
@@ -20,6 +21,7 @@ describe('QueryableResourceMixin', () => {
       facade = LeanES.NS.Facade.getInstance(KEY);
 
       @initialize
+      @mixin(QueryableAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
