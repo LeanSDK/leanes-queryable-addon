@@ -5,7 +5,7 @@ const QueryableAddon = ("../../../src/index.js").default;
 const LeanES = require('leanes').default;
 const {
   Cursor,
-  initialize, partOf, nameBy, meta, mixin, constant, method, attribute, property
+  initialize, partOf, nameBy, meta, mixin, constant, method, attribute, property, plugin
 } = LeanES.NS;
 
 describe('QueryableCollectionMixin', () => {
@@ -13,7 +13,7 @@ describe('QueryableCollectionMixin', () => {
     it('should create queryable instance', () => {
 
       @initialize
-      @mixin(QueryableAddon)
+      @plugin(QueryableAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -40,7 +40,7 @@ describe('QueryableCollectionMixin', () => {
     it('should execute query', async () => {
 
       @initialize
-      @mixin(QueryableAddon)
+      @plugin(QueryableAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -87,7 +87,7 @@ describe('QueryableCollectionMixin', () => {
       facade = LeanES.NS.Facade.getInstance(KEY);
 
       @initialize
-      @mixin(QueryableAddon)
+      @plugin(QueryableAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -170,7 +170,7 @@ describe('QueryableCollectionMixin', () => {
       facade = LeanES.NS.Facade.getInstance(KEY);
 
       @initialize
-      @mixin(QueryableAddon)
+      @plugin(QueryableAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -259,7 +259,7 @@ describe('QueryableCollectionMixin', () => {
       facade = LeanES.NS.Facade.getInstance(KEY);
 
       @initialize
-      @mixin(QueryableAddon)
+      @plugin(QueryableAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -363,7 +363,7 @@ describe('QueryableCollectionMixin', () => {
       facade = LeanES.NS.Facade.getInstance(KEY);
 
       @initialize
-      @mixin(QueryableAddon)
+      @plugin(QueryableAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -480,7 +480,7 @@ describe('QueryableCollectionMixin', () => {
       facade = LeanES.NS.Facade.getInstance(KEY);
 
       @initialize
-      @mixin(QueryableAddon)
+      @plugin(QueryableAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -595,7 +595,7 @@ describe('QueryableCollectionMixin', () => {
       facade = LeanES.NS.Facade.getInstance(KEY);
 
       @initialize
-      @mixin(QueryableAddon)
+      @plugin(QueryableAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -718,7 +718,7 @@ describe('QueryableCollectionMixin', () => {
       facade = LeanES.NS.Facade.getInstance(KEY);
 
       @initialize
-      @mixin(QueryableAddon)
+      @plugin(QueryableAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};

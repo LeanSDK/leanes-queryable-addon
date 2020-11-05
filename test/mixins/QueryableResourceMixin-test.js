@@ -21,7 +21,7 @@ describe('QueryableResourceMixin', () => {
       facade = LeanES.NS.Facade.getInstance(KEY);
 
       @initialize
-      @mixin(QueryableAddon)
+      @plugin(QueryableAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
