@@ -2,7 +2,7 @@ const EventEmitter = require('events');
 const { expect, assert } = require('chai');
 const sinon = require('sinon');
 const _ = require('lodash');
-const QueryableAddon = ("../../../src/index.js").default;
+const QueryableAddon = require("../../../src/index.js").default;
 const LeanES = require('leanes/src/leanes').default;
 
 const hasProp = {}.hasOwnProperty;
@@ -178,7 +178,7 @@ describe('QueryableResourceMixin', () => {
       assert.deepEqual(result.meta, {
         pagination: {
           limit: 50,
-          offset:0
+          offset: 0
         }
       });
       assert.propertyVal(result.items[0], 'test', 'test1');
