@@ -2,7 +2,7 @@ const { expect, assert } = require('chai');
 const sinon = require('sinon');
 const _ = require('lodash');
 const QueryableAddon = ("../../../src/index.js").default;
-const LeanES = require('leanes').default;
+const LeanES = require('leanes/src/leanes').default;
 const {
   Cursor,
   initialize, partOf, nameBy, meta, mixin, constant, method, attribute, property, plugin

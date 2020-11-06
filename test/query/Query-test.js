@@ -2,14 +2,20 @@ const { expect, assert } = require('chai');
 const sinon = require('sinon');
 const _ = require('lodash');
 const QueryableAddon = ("../../../src/index.js").default;
-const LeanES = require('leanes').default;
+const LeanES = require('leanes/src/leanes').default;
 const {
-  Query,
-  initialize, partOf, nameBy, meta, method, property, mixin, attribute, constant
+  initialize, partOf, nameBy, meta, plugin
 } = LeanES.NS;
 
-
 describe('Query', () => {
+
+  @initialize
+  @plugin(QueryableAddon)
+  class Test extends LeanES {
+    @nameBy static __filename = 'Test';
+    @meta static object = {};
+  }
+  const Query = Test.NS;
   describe('.new', () => {
     it('should create new query', () => {
       expect(() => {

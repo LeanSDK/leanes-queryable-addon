@@ -3,7 +3,7 @@ const { expect, assert } = require('chai');
 const sinon = require('sinon');
 const _ = require('lodash');
 const QueryableAddon = ("../../../src/index.js").default;
-const LeanES = require('leanes').default;
+const LeanES = require('leanes/src/leanes').default;
 
 const hasProp = {}.hasOwnProperty;
 
