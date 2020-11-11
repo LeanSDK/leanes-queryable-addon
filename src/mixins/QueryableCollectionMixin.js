@@ -21,13 +21,12 @@ import type { QueryableCollectionInterface } from '../interfaces/QueryableCollec
 
 export default (Module) => {
   const {
-    Collection,
     assert,
     initializeMixin, meta, method,
     Utils: { _ }
   } = Module.NS;
 
-  Module.defineMixin(__filename, (BaseClass: Class<Collection>) => {
+  Module.defineMixin(__filename, (BaseClass) => {
     @initializeMixin
     class Mixin<
       C = CollectionInterface, D = RecordInterface

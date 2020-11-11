@@ -13,15 +13,23 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with leanes-queryable-addon.  If not, see <https://www.gnu.org/licenses/>.
 
+import QueryTF from './query/Query';
+
+import GenerateAutoincrementIdMixinTF from './mixins/GenerateAutoincrementIdMixin';
+import QueryableCollectionMixinTF from './mixins/QueryableCollectionMixin';
+import QueryableHttpAdapterMixinTF from './mixins/QueryableHttpAdapterMixin';
+import QueryableResourceMixinTF from './mixins/QueryableResourceMixin';
+
 export type { QueryInterface } from './interfaces/QueryInterface';
 export type { QueryableCollectionInterface } from './interfaces/QueryableCollectionInterface';
 
 export default (Module) => {
   const {
+    Module: BaseModule,
     initializeMixin, meta,
   } = Module.NS;
 
-  return ['QueryableAddon', (BaseClass: Class<Module.NS.Module>) => {
+  return ['QueryableAddon', (BaseClass: Class<BaseModule>) => {
     @initializeMixin
     class Mixin extends BaseClass {
       @meta static object = {};
@@ -32,10 +40,12 @@ export default (Module) => {
       @decorator relatedEmbeds = relatedEmbeds;
     }
 
-    require('./query/Query').default(Mixin);
-    require('./mixins/QueryableCollectionMixin').default(Mixin);
-    require('./mixins/QueryableHttpAdapterMixin').default(Mixin);
-    require('./mixins/QueryableResourceMixin').default(Mixin);
+    QueryTF(Mixin);
+
+    GenerateAutoincrementIdMixinTF(Mixin);
+    QueryableCollectionMixinTF(Mixin);
+    QueryableHttpAdapterMixinTF(Mixin);
+    QueryableResourceMixinTF(Mixin);
 
     return Mixin;
   }]

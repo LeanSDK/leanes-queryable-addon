@@ -19,14 +19,13 @@ import type {
 
 export default (Module) => {
   const {
-    Resource,
     initializeMixin, meta, method, action, chains, property,
     Utils: { _, joi, assert }
   } = Module.NS;
 
   const MAX_LIMIT = 50;
 
-  Module.defineMixin(__filename, (BaseClass: Class<Resource>) => {
+  Module.defineMixin(__filename, (BaseClass) => {
     @initializeMixin
     @chains(['query', 'list'], function () {
       // this.initialHook('requiredAuthorizationHeader', {
