@@ -34,7 +34,7 @@ export default (Module) => {
 
     require('./query/Query').default(Mixin);
     require('./mixins/QueryableCollectionMixin').default(Mixin);
-    require('./mixins/QueryableHttpCollectionMixin').default(Mixin);
+    require('./mixins/QueryableHttpAdapterMixin').default(Mixin);
     require('./mixins/QueryableResourceMixin').default(Mixin);
 
     return Mixin;

@@ -13,10 +13,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with leanes-queryable-addon.  If not, see <https://www.gnu.org/licenses/>.
 
-import type {
-  CollectionInterface, RecordInterface, CursorInterface,
-  HttpRequestParamsT,
-} from '@leansdk/leanes-mapper-addon/src';
+import type { HttpRequestParamsT } from '@leansdk/leanes-mapper-addon/src';
 // import type {
 //  RequestArgumentsT, LegacyResponseInterface, AxiosResponse,
 // } from '@leansdk/leanes/src/types/RequestT';
@@ -25,25 +22,24 @@ import type { QueryInterface } from '../interfaces/QueryInterface';
 
 export default (Module) => {
   const {
-    Collection, Cursor,
     assert,
     initializeMixin, meta, property, method,
     Utils: {_, inflect, request}
   } = Module.NS;
 
-  Module.defineMixin(__filename, (BaseClass: Class<Collection>) => {
+  Module.defineMixin(__filename, (BaseClass) => {
     @initializeMixin
     class Mixin<
-      D = RecordInterface
+      R = Class<{name: string}>, T = object
     > extends BaseClass {
       @meta static object = {};
 
       @property queryEndpoint: string = 'query';
 
-      @method async takeBy(query: object, options: ?object = {}): Promise<CursorInterface<CollectionInterface<D>, D>> {
+      @method async takeBy(acRecord: R, query: object, options: ?object = {}): Promise<T[]> {
         const params = {};
         params.requestType = 'takeBy';
-        params.recordName = this.delegate.name;
+        params.recordName = acRecord.name;
         params.query = {
           $filter: query
         };
@@ -60,23 +56,64 @@ export default (Module) => {
         const res = await this.makeRequest(requestObj);
         assert(res.status < 400, `Request failed with status ${res.status} ${res.message}`);
         let { body } = res;
-        let voCursor;
         if ((body != null) && body !== '') {
           if (_.isString(body)) {
             body = JSON.parse(body);
           }
-          const vhRecordsData = body[this.recordMultipleName()];
-          voCursor = Cursor.new(this, vhRecordsData);
+          return body[this.recordMultipleName(acRecord.name)];
         } else {
           assert.fail("Record payload has not existed in response body.");
         }
-        return voCursor;
       }
 
-      @method async includes(id: string | number): Promise<boolean> {
+      @method async takeMany(acRecord: R, ids: Array<string | number>): Promise<T[]> {
+        const params = {};
+        params.requestType = 'takeBy';
+        params.recordName = acRecord.name;
+        params.query = {
+          $filter: {
+            '@doc.id': {
+              $in: ids
+            }
+          }
+        };
+        const requestObj = this.requestFor(params);
+        const res = await this.makeRequest(requestObj);
+        assert(res.status < 400, `Request failed with status ${res.status} ${res.message}`);
+        let { body } = res;
+        if ((body != null) && body !== '') {
+          if (_.isString(body)) {
+            body = JSON.parse(body);
+          }
+          return body[this.recordMultipleName(acRecord.name)];
+        } else {
+          assert.fail("Record payload has not existed in response body.");
+        }
+      }
+
+      @method async takeAll(acRecord: R): Promise<T[]> {
+        const params = {};
+        params.requestType = 'takeAll';
+        params.recordName = acRecord.name;
+        params.query = {};
+        const requestObj = this.requestFor(params);
+        const res = await this.makeRequest(requestObj);
+        assert(res.status < 400, `Request failed with status ${res.status} ${res.message}`);
+        let { body } = res;
+        if ((body != null) && body !== '') {
+          if (_.isString(body)) {
+            body = JSON.parse(body);
+          }
+          return body[this.recordMultipleName(acRecord.name)];
+        } else {
+          assert.fail("Record payload has not existed in response body.");
+        }
+      }
+
+      @method async includes(acRecord: R, id: string | number, collectionFullName: string): Promise<boolean> {
         const voQuery = {
           $forIn: {
-            '@doc': this.collectionFullName()
+            '@doc': collectionFullName
           },
           $filter: {
             '@doc.id': {
@@ -86,18 +123,23 @@ export default (Module) => {
           $limit: 1,
           $return: '@doc'
         };
-        // console.log('>?>?> HttpCollectionMixin::includes before query');
-        return await (await this.query(voQuery)).hasNext();
+        const result = await this.executeQuery(await this.parseQuery(voQuery));
+        return result != null && result[0] != null
       }
 
-      @method async length(): Promise<number> {
+      @method async length(acRecord: R, collectionFullName: string): Promise<number> {
         const voQuery = {
           $forIn: {
-            '@doc': this.collectionFullName()
+            '@doc': collectionFullName
           },
           $count: true
         };
-        return (await (await this.query(voQuery)).first()).count;
+        const result = await this.executeQuery(await this.parseQuery(voQuery));
+        return result != null
+          ? result[0] != null
+            ? result[0].count
+            : 0
+          : 0;
       }
 
       @method methodForRequest(params: HttpRequestParamsT): string {
@@ -126,26 +168,9 @@ export default (Module) => {
       }
 
       @method makeURL(recordName: string, query: ?object, id: ?(number | string), isQueryable: ?boolean): string {
-        const url = [];
-        const prefix = this.urlPrefix();
-        if (recordName) {
-          const path = this.pathForType(recordName);
-          if (path) {
-            url.push(path);
-          }
-        }
+        let vsUrl = super.makeURL(... arguments);
         if (isQueryable && (this.queryEndpoint != null)) {
-          url.push(encodeURIComponent(this.queryEndpoint));
-        }
-        if (prefix) {
-          url.unshift(prefix);
-        }
-        if (id != null) {
-          url.push(id);
-        }
-        let vsUrl = url.join('/');
-        if (!this.host && vsUrl && vsUrl.charAt(0) !== '/') {
-          vsUrl = '/' + vsUrl;
+          vsUrl += encodeURIComponent(this.queryEndpoint);
         }
         if (query != null) {
           query = encodeURIComponent(JSON.stringify(query != null ? query : ''));
@@ -184,34 +209,27 @@ export default (Module) => {
             return this.urlForPatchBy(recordName, query);
           case 'removeBy':
             return this.urlForRemoveBy(recordName, query);
-          case 'takeAll':
-            return this.urlForTakeAll(recordName, query);
           case 'takeBy':
             return this.urlForTakeBy(recordName, query);
+          case 'takeAll':
           case 'take':
-            return this.urlForTake(recordName, id);
           case 'push':
-            return this.urlForPush(recordName, snapshot);
           case 'remove':
-            return this.urlForRemove(recordName, id);
           case 'override':
-            return this.urlForOverride(recordName, snapshot, id);
           default:
-            const vsMethod = `urlFor${inflect.camelize(requestType)}`;
-            return typeof this[vsMethod] === "function" ? this[vsMethod](recordName, query, snapshot, id) : undefined;
+            return super.buildURL(... arguments);
         }
       }
 
       @method async parseQuery(
-        aoQuery: object | QueryInterface
+        acRecord: R, aoQuery: object | QueryInterface
       ): Promise<object | string | QueryInterface> {
-        // console.log('>>?? HttpCollectionMixin::parseQuery enter');
         const params = {};
         switch (false) {
           case aoQuery.$remove == null:
             if (aoQuery.$forIn != null) {
               params.requestType = 'removeBy';
-              params.recordName = this.delegate.name;
+              params.recordName = acRecord.name;
               params.query = aoQuery;
               params.isCustomReturn = true;
               return params;
@@ -220,7 +238,7 @@ export default (Module) => {
           case aoQuery.$patch == null:
             if (aoQuery.$forIn != null) {
               params.requestType = 'patchBy';
-              params.recordName = this.delegate.name;
+              params.recordName = acRecord.name;
               params.query = aoQuery;
               params.isCustomReturn = true;
               return params;
@@ -228,7 +246,7 @@ export default (Module) => {
             break;
           default:
             params.requestType = 'query';
-            params.recordName = this.delegate.name;
+            params.recordName = acRecord.name;
             params.query = aoQuery;
             params.isCustomReturn = (aoQuery.$collect != null) || (aoQuery.$count != null) || (aoQuery.$sum != null) || (aoQuery.$min != null) || (aoQuery.$max != null) || (aoQuery.$avg != null) || (aoQuery.$remove != null) || aoQuery.$return !== '@doc';
             return params;
@@ -236,9 +254,8 @@ export default (Module) => {
       }
 
       @method async executeQuery(
-        aoQuery: object | string | QueryInterface
-      ): Promise<CursorInterface<?CollectionInterface<D>, *>> {
-        // console.log('>>?? HttpCollectionMixin::executeQuery enter');
+        acRecord: R, aoQuery: object | string | QueryInterface
+      ): Promise<Array<?T>> {
         const requestObj = this.requestFor(aoQuery);
         const res = await this.makeRequest(requestObj);
         assert(res.status < 400, `Request failed with status ${res.status} ${res.message}`);
@@ -250,16 +267,9 @@ export default (Module) => {
           if (!_.isArray(body)) {
             body = [body];
           }
-          if (aoQuery.isCustomReturn) {
-            // console.log('>>?? HttpCollectionMixin::executeQuery aoQuery.isCustomReturn');
-            return (Cursor.new(null, body): Cursor<null, *>);
-          } else {
-            // console.log('>>?? HttpCollectionMixin::executeQuery NOT aoQuery.isCustomReturn');
-            return (Cursor.new(this, body): Cursor<CollectionInterface<D>, D>);
-          }
+          return body;
         } else {
-          // console.log('>>?? HttpCollectionMixin::executeQuery EMPTY CURSOR');
-          return (Cursor.new(null, []): Cursor<null, *>);
+          return [];
         }
       }
     }

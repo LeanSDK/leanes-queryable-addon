@@ -43,7 +43,8 @@ export default (Module) => {
       @method async takeBy(
         query: object, options: ?object = {}
       ): Promise<CursorInterface<C, D>> {
-        return assert.fail('Not implemented specific method');
+        const result = await this.adapter.takeBy(this.delegate, query, options);
+        return this._cursorFactory(this.getName(), result);
       }
 
       @method async deleteBy(query: object): Promise<void> {
@@ -81,6 +82,14 @@ export default (Module) => {
         await this.query(voQuery);
       }
 
+      @method async includes(id: string | number): Promise<boolean> {
+        return await this.adapter.includes(this.delegate, id, this.collectionFullName());
+      }
+
+      @method async length(): Promise<number> {
+        return await this.adapter.length(this.delegate, this.collectionFullName());
+      }
+
       @method async exists(query: object): Promise<boolean> {
         const voQuery = Module.NS.Query.new().forIn({
           '@doc': this.collectionFullName()
@@ -108,15 +117,20 @@ export default (Module) => {
       }
 
       @method async parseQuery(
-        aoQuery: object | QueryInterface
+        query: object | QueryInterface
       ): Promise<object | string | QueryInterface> {
-        return assert.fail('Not implemented specific method');
+        return await this.adapter.parseQuery(this.delegate, query);
       }
 
       @method async executeQuery(
         query: object | string | QueryInterface
       ): Promise<CursorInterface<?C, *>> {
-        return assert.fail('Not implemented specific method');
+        const result = await this.adapter.executeQuery(this.delegate, query);
+        if (query.isCustomReturn) {
+          return (this._cursorFactory(null, result): Cursor<null, *>);
+        } else {
+          return (this._cursorFactory(this.getName(), result): Cursor<CollectionInterface<D>, D>);
+        }
       }
     }
     return Mixin;
