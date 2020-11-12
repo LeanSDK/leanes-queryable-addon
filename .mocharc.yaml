@@ -3,13 +3,15 @@ color: true
 extension:
   - 'js'
 file:
-  - './test/mixins/QueryableResourceMixin-test.js'
   - './test/mixins/QueryableCollectionMixin-test.js'
-  - './test/query/Query-test.js'
+  # - './test/mixins/QueryableHttpCollectionMixin-test.js'
+  # - './test/mixins/QueryableResourceMixin-test.js'
+  # - './test/query/Query-test.js'
 full-trace: true
 growl: true
 recursive: false
 reporter: 'spec'
-require: '@babel/register'
+# require: '@babel/register'
+require: 'register-babel.js'
 # spec: 'test/**/**/*-test.js'
-watch: true
+watch: false
