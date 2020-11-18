@@ -13,13 +13,13 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with leanes-queryable-addon.  If not, see <https://www.gnu.org/licenses/>.
 
-import type {
-  ContextInterface, ResourceListResultT,
-} from '@leansdk/leanes-restful-addon/src';
+import type { ResourceListResultT } from '../types/ResourceListResultT';
+
+import type { ContextInterface } from '../interfaces/ContextInterface';
 
 export default (Module) => {
   const {
-    initializeMixin, meta, method, action, chains, property,
+    initializeMixin, meta, method, chains, property,
     Utils: { _, joi, assert }
   } = Module.NS;
 
@@ -52,25 +52,6 @@ export default (Module) => {
         return args;
       }
 
-      // удалить т.к. узкоспециализированный метод и может быть вынесен в миксин для работы с транзакциями в аддоне поддерживающем транзакции
-      // @method async writeTransaction(asAction: string, aoContext: ContextInterface): Promise<boolean> {
-      //   let result = await super.writeTransaction(asAction, aoContext);
-      //   if (result) {
-      //     if (asAction === 'query') {
-      //       const parse = require('co-body'); // TODO
-      //       const body = await parse(aoContext.req);
-      //       const { query } = body != null ? body : {};
-      //       if (query != null) {
-      //         const key = _.findKey(query, (v, k) =>
-      //           k === '$patch' || k === '$remove'
-      //         );
-      //         result = key != null;
-      //       }
-      //     }
-      //   }
-      //   return result;
-      // }
-
       @method async showNoHiddenByDefault(...args) {
         if (this.listQuery.$filter != null) {
           if (!/.*\@doc\.isHidden.*/.test(JSON.stringify(this.listQuery.$filter))) {
@@ -91,7 +72,7 @@ export default (Module) => {
         return args;
       }
 
-      @action async list(): Promise<ResourceListResultT> {
+      @BaseClass.Module.NS.action async list(): Promise<ResourceListResultT> {
         const receivedQuery = _.pick(this.listQuery, ['$filter', '$sort', '$limit', '$offset']);
         // console.log('dfdfdf', receivedQuery);
         const voQuery = Module.NS.Query.new().forIn({
@@ -175,7 +156,7 @@ export default (Module) => {
         };
       }
 
-      @action async query(): Promise<Array> {
+      @BaseClass.Module.NS.action async query(): Promise<Array> {
         const { body } = this.context.request;
         return await (await this.collection.query(body.query)).toArray();
       }

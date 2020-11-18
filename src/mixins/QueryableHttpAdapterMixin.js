@@ -13,10 +13,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with leanes-queryable-addon.  If not, see <https://www.gnu.org/licenses/>.
 
-import type { HttpRequestParamsT } from '@leansdk/leanes-mapper-addon/src';
-// import type {
-//  RequestArgumentsT, LegacyResponseInterface, AxiosResponse,
-// } from '@leansdk/leanes/src/types/RequestT';
+import type { HttpRequestParamsT } from '../types/HttpRequestParamsT';
 
 import type { QueryInterface } from '../interfaces/QueryInterface';
 
@@ -30,7 +27,7 @@ export default (Module) => {
   Module.defineMixin(__filename, (BaseClass) => {
     @initializeMixin
     class Mixin<
-      R = Class<{name: string}>, T = object
+      R = Class<*>, T = object
     > extends BaseClass {
       @meta static object = {};
 

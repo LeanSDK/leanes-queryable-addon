@@ -13,14 +13,15 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with leanes-queryable-addon.  If not, see <https://www.gnu.org/licenses/>.
 
-import type {
-  CollectionInterface, RecordInterface, CursorInterface,
-} from '@leansdk/leanes-mapper-addon/src';
+import type { CollectionInterface } from '../interfaces/CollectionInterface';
+import type { RecordInterface } from '../interfaces/RecordInterface';
+import type { CursorInterface } from '../interfaces/CursorInterface';
 import type { QueryInterface } from '../interfaces/QueryInterface';
 import type { QueryableCollectionInterface } from '../interfaces/QueryableCollectionInterface';
 
 export default (Module) => {
   const {
+    Cursor, Query,
     assert,
     initializeMixin, meta, method,
     Utils: { _ }
@@ -61,7 +62,7 @@ export default (Module) => {
       }
 
       @method async removeBy(query: object): Promise<void> {
-        const voQuery = Module.NS.Query.new().forIn({
+        const voQuery = Query.new().forIn({
           '@doc': this.collectionFullName()
         }).filter(query).remove('@doc').into(this.collectionFullName());
         await this.query(voQuery);
@@ -75,7 +76,7 @@ export default (Module) => {
       }
 
       @method async patchBy(query: object, properties: object): Promise<void> {
-        const voQuery = Module.NS.Query.new().forIn({
+        const voQuery = Query.new().forIn({
           '@doc': this.collectionFullName()
         }).filter(query).patch(properties).into(this.collectionFullName());
         await this.query(voQuery);
@@ -90,7 +91,7 @@ export default (Module) => {
       }
 
       @method async exists(query: object): Promise<boolean> {
-        const voQuery = Module.NS.Query.new().forIn({
+        const voQuery = Query.new().forIn({
           '@doc': this.collectionFullName()
         }).filter(query).limit(1).return('@doc');
         const cursor = await this.query(voQuery);
@@ -99,14 +100,14 @@ export default (Module) => {
 
       @method async query(
         aoQuery: object | QueryInterface
-      ): Promise<QueryInterface> {
+      ): Promise<CursorInterface<?C, *>> {
         // console.log('>?>?? QueryableCollectionMixin::query enter');
         const voQuery = (() => {
           if (_.isPlainObject(aoQuery)) {
             aoQuery = _.pick(aoQuery, Object.keys(aoQuery).filter((key) =>
               aoQuery[key] != null
             ));
-            return Module.NS.Query.new(aoQuery);
+            return Query.new(aoQuery);
           } else {
             return aoQuery;
           }

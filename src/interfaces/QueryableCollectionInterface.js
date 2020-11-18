@@ -14,7 +14,7 @@
 // along with leanes-queryable-addon.  If not, see <https://www.gnu.org/licenses/>.
 
 import type { QueryInterface } from './QueryInterface';
-import type { CursorInterface } from '@leansdk/leanes-mapper-addon/src';
+import type { CursorInterface } from './CursorInterface';
 
 export interface QueryableCollectionInterface<
   C, D
@@ -35,7 +35,7 @@ export interface QueryableCollectionInterface<
 
   exists(query: object): Promise<boolean>;
 
-  query(aoQuery: object | QueryInterface): Promise<QueryInterface>;
+  query(aoQuery: object | QueryInterface): Promise<CursorInterface<?C, *>>;
 
   parseQuery(aoQuery: object | QueryInterface): Promise<object | string | QueryInterface>;
 

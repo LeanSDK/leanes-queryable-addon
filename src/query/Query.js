@@ -214,7 +214,7 @@ export default (Module) => {
       return this;
     }
 
-    @method static async restoreObject(acModule: Class<Module>, replica: object): QueryInterface {
+    @method static async restoreObject(acModule: Class<*>, replica: object): QueryInterface {
       if ((replica != null ? replica.class : void 0) === this.name && (replica != null ? replica.type : void 0) === 'instance') {
         return this.new(replica.query);
       } else {

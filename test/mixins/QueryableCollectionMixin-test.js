@@ -1,11 +1,12 @@
 const { expect, assert } = require('chai');
 const sinon = require('sinon');
 const _ = require('lodash');
-const QueryableAddon = require("../../src").default;
-const LeanES = require('@leansdk/leanes/src/leanes').default;
+const addonPath = process.env.ENV === 'build' ? "../../lib/index.dev" : "../../src";
+const QueryableAddon = require(addonPath).default;
+const MapperAddon = require('@leansdk/leanes-mapper-addon/src').default;
+const LeanES = require('@leansdk/leanes/src').default;
 const {
-  Cursor,
-  initialize, partOf, nameBy, meta, mixin, constant, method, attribute, property, plugin
+  initialize, partOf, nameBy, meta, mixin, constant, method, property, plugin
 } = LeanES.NS;
 
 describe('QueryableCollectionMixin', () => {
@@ -14,6 +15,7 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @plugin(QueryableAddon)
+      @plugin(MapperAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -41,12 +43,13 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @plugin(QueryableAddon)
+      @plugin(MapperAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
       }
       const spyExecuteQuery = sinon.spy(async (aoParsedQuery) => {
-        return Cursor.new(null, [Symbol('any')]);
+        return Test.NS.Cursor.new(null, [Symbol('any')]);
       });
       const spyParseQuery = sinon.spy(async (aoQuery) => {
         return aoQuery;
@@ -55,8 +58,8 @@ describe('QueryableCollectionMixin', () => {
       let queryObj = null;
 
       @initialize
-      @mixin(Test.NS.QueryableCollectionMixin)
       @partOf(Test)
+      @mixin(Test.NS.QueryableCollectionMixin)
       class Queryable extends LeanES.NS.CoreObject {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -88,6 +91,7 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @plugin(QueryableAddon)
+      @plugin(MapperAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -95,10 +99,10 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @partOf(Test)
-      class TestRecord extends LeanES.NS.Record {
+      class TestRecord extends Test.NS.Record {
         @nameBy static __filename = 'TestRecord';
         @meta static object = {};
-        @attribute({ type: 'string' }) test;
+        @Test.NS.attribute({ type: 'string' }) test;
         constructor() {
           super(...arguments);
           this.type = 'Test::TestRecord';
@@ -106,9 +110,9 @@ describe('QueryableCollectionMixin', () => {
       }
 
       @initialize
-      @mixin(Test.NS.QueryableCollectionMixin)
       @partOf(Test)
-      class Queryable extends LeanES.NS.Collection {
+      @mixin(Test.NS.QueryableCollectionMixin)
+      class Queryable extends Test.NS.Collection {
         @nameBy static __filename = 'Test';
         @meta static object = {};
         @property get delegate() {
@@ -119,7 +123,7 @@ describe('QueryableCollectionMixin', () => {
         }
         @method async executeQuery(aoParsedQuery) {
           const data = _.filter(this.getData(), aoParsedQuery.$filter);
-          return await Cursor.new(this, data);
+          return Test.NS.Cursor.new(this, data);
         }
         @method async update(id, item) {
           const record = await this.find(id);
@@ -171,6 +175,7 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @plugin(QueryableAddon)
+      @plugin(MapperAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -178,10 +183,10 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @partOf(Test)
-      class TestRecord extends LeanES.NS.Record {
+      class TestRecord extends Test.NS.Record {
         @nameBy static __filename = 'TestRecord';
         @meta static object = {};
-        @attribute({ type: 'string' }) test;
+        @Test.NS.attribute({ type: 'string' }) test;
         constructor() {
           super(...arguments);
           this.type = 'Test::TestRecord';
@@ -189,9 +194,9 @@ describe('QueryableCollectionMixin', () => {
       }
 
       @initialize
-      @mixin(Test.NS.QueryableCollectionMixin)
       @partOf(Test)
-      class Queryable extends LeanES.NS.Collection {
+      @mixin(Test.NS.QueryableCollectionMixin)
+      class Queryable extends Test.NS.Collection {
         @nameBy static __filename = 'Queryable';
         @meta static object = {};
         @property get delegate() {
@@ -202,7 +207,7 @@ describe('QueryableCollectionMixin', () => {
         }
         @method async executeQuery(aoParsedQuery) {
           const data = _.filter(this.getData(), aoParsedQuery.$filter);
-          return Cursor.new(this, data);
+          return Test.NS.Cursor.new(this, data);
         }
         @method async update(id, item) {
           const record = await this.find(id);
@@ -260,6 +265,7 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @plugin(QueryableAddon)
+      @plugin(MapperAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -267,10 +273,10 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @partOf(Test)
-      class TestRecord extends LeanES.NS.Record {
+      class TestRecord extends Test.NS.Record {
         @nameBy static __filename = 'TestRecord';
         @meta static object = {};
-        @attribute({ type: 'string' }) test;
+        @Test.NS.attribute({ type: 'string' }) test;
         constructor() {
           super(...arguments);
           this.type = 'Test::TestRecord';
@@ -278,9 +284,9 @@ describe('QueryableCollectionMixin', () => {
       }
 
       @initialize
-      @mixin(Test.NS.QueryableCollectionMixin)
       @partOf(Test)
-      class Queryable extends LeanES.NS.Collection {
+      @mixin(Test.NS.QueryableCollectionMixin)
+      class Queryable extends Test.NS.Collection {
         @nameBy static __filename = 'Test';
         @meta static object = {};
         @property get delegate() {
@@ -291,7 +297,7 @@ describe('QueryableCollectionMixin', () => {
         }
         @method async executeQuery(aoParsedQuery) {
           const data = _.filter(this.getData(), aoParsedQuery.$filter);
-          return await Cursor.new(this, data);
+          return Test.NS.Cursor.new(this, data);
         }
         @method async update(id, item) {
           const record = await this.find(id);
@@ -319,7 +325,7 @@ describe('QueryableCollectionMixin', () => {
         @method async override(id, aoRecord) {
           const index = _.findIndex(this.getData(), { id });
           this.getData()[index] = await this.serializer.serialize(aoRecord);
-          return await Test.NS.Cursor.new(this, [this.getData()[index]]).first();
+          return Test.NS.Cursor.new(this, [this.getData()[index]]).first();
         }
       }
       const collection = Queryable.new();
@@ -364,6 +370,7 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @plugin(QueryableAddon)
+      @plugin(MapperAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -371,10 +378,10 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @partOf(Test)
-      class TestRecord extends LeanES.NS.Record {
+      class TestRecord extends Test.NS.Record {
         @nameBy static __filename = 'TestRecord';
         @meta static object = {};
-        @attribute({ type: 'string' }) test;
+        @Test.NS.attribute({ type: 'string' }) test;
         constructor() {
           super(...arguments);
           this.type = 'Test::TestRecord';
@@ -382,9 +389,9 @@ describe('QueryableCollectionMixin', () => {
       }
 
       @initialize
-      @mixin(Test.NS.QueryableCollectionMixin)
       @partOf(Test)
-      class Queryable extends LeanES.NS.Collection {
+      @mixin(Test.NS.QueryableCollectionMixin)
+      class Queryable extends Test.NS.Collection {
         @nameBy static __filename = 'Test';
         @meta static object = {};
         @property get delegate() {
@@ -398,11 +405,11 @@ describe('QueryableCollectionMixin', () => {
           switch (false) {
             case !aoParsedQuery['$remove']:
               _.remove(this.getData(), aoParsedQuery['$filter']);
-              return await Cursor.new(this, []);
+              return Test.NS.Cursor.new(this, []);
             default:
               data = _.filter(this.getData(), aoParsedQuery.$filter);
           }
-          return await Cursor.new(this, data);
+          return Test.NS.Cursor.new(this, data);
         }
         @method async update(id, item) {
           const data = _.filter(this.getData(), { id });
@@ -444,7 +451,7 @@ describe('QueryableCollectionMixin', () => {
         @method async override(id, aoRecord) {
           const index = _.findIndex(this.getData(), { id });
           this.getData()[index] = await this.serializer.serialize(aoRecord);
-          return await Test.NS.Cursor.new(this, [this.getData()[index]]).first();
+          return Test.NS.Cursor.new(this, [this.getData()[index]]).first();
         }
       }
       const collection = Queryable.new();
@@ -481,6 +488,7 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @plugin(QueryableAddon)
+      @plugin(MapperAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -488,10 +496,10 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @partOf(Test)
-      class TestRecord extends LeanES.NS.Record {
+      class TestRecord extends Test.NS.Record {
         @nameBy static __filename = 'TestRecord';
         @meta static object = {};
-        @attribute({ type: 'string' }) test;
+        @Test.NS.attribute({ type: 'string' }) test;
         constructor() {
           super(...arguments);
           this.type = 'Test::TestRecord';
@@ -499,9 +507,9 @@ describe('QueryableCollectionMixin', () => {
       }
 
       @initialize
-      @mixin(Test.NS.QueryableCollectionMixin)
       @partOf(Test)
-      class Queryable extends LeanES.NS.Collection {
+      @mixin(Test.NS.QueryableCollectionMixin)
+      class Queryable extends Test.NS.Collection {
         @nameBy static __filename = 'Test';
         @meta static object = {};
         @property get delegate() {
@@ -515,11 +523,11 @@ describe('QueryableCollectionMixin', () => {
           switch (false) {
             case !aoParsedQuery['$remove']:
               _.remove(this.getData(), aoParsedQuery['$filter']);
-              return await Cursor.new(this, []);
+              return Test.NS.Cursor.new(this, []);
             default:
               data = _.filter(this.getData(), aoParsedQuery.$filter);
           }
-          return await Cursor.new(this, data);
+          return Test.NS.Cursor.new(this, data);
         }
         @method async update(id, item) {
           const data = _.filter(this.getData(), { id });
@@ -596,6 +604,7 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @plugin(QueryableAddon)
+      @plugin(MapperAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -603,11 +612,11 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @partOf(Test)
-      class TestRecord extends LeanES.NS.Record {
+      class TestRecord extends Test.NS.Record {
         @nameBy static __filename = 'TestRecord';
         @meta static object = {};
-        @attribute({ type: 'string' }) test;
-        @attribute({ type: 'boolean' }) updated = false;
+        @Test.NS.attribute({ type: 'string' }) test;
+        @Test.NS.attribute({ type: 'boolean' }) updated = false;
         constructor() {
           super(...arguments);
           this.type = 'Test::TestRecord';
@@ -615,9 +624,9 @@ describe('QueryableCollectionMixin', () => {
       }
 
       @initialize
-      @mixin(Test.NS.QueryableCollectionMixin)
       @partOf(Test)
-      class Queryable extends LeanES.NS.Collection {
+      @mixin(Test.NS.QueryableCollectionMixin)
+      class Queryable extends Test.NS.Collection {
         @nameBy static __filename = 'Test';
         @meta static object = {};
         @property get delegate() {
@@ -628,7 +637,7 @@ describe('QueryableCollectionMixin', () => {
         }
         @method async executeQuery(aoParsedQuery) {
           const data = _.filter(this.getData(), aoParsedQuery.$filter)
-          return await Cursor.new(this, data);
+          return Test.NS.Cursor.new(this, data);
         }
         @method async update(id, item) {
           const data = _.filter(this.getData(), { id });
@@ -677,7 +686,7 @@ describe('QueryableCollectionMixin', () => {
         @method async override(id, aoRecord) {
           const index = _.findIndex(this.getData(), { id });
           this.getData()[index] = await this.serializer.serialize(aoRecord);
-          return await Test.NS.Cursor.new(this, [this.getData()[index]]).first();
+          return Test.NS.Cursor.new(this, [this.getData()[index]]).first();
         }
       }
       const collection = Queryable.new();
@@ -719,6 +728,7 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @plugin(QueryableAddon)
+      @plugin(MapperAddon)
       class Test extends LeanES {
         @nameBy static __filename = 'Test';
         @meta static object = {};
@@ -726,11 +736,11 @@ describe('QueryableCollectionMixin', () => {
 
       @initialize
       @partOf(Test)
-      class TestRecord extends LeanES.NS.Record {
+      class TestRecord extends Test.NS.Record {
         @nameBy static __filename = 'TestRecord';
         @meta static object = {};
-        @attribute({ type: 'string' }) test;
-        @attribute({ type: 'boolean' }) updated = false;
+        @Test.NS.attribute({ type: 'string' }) test;
+        @Test.NS.attribute({ type: 'boolean' }) updated = false;
         constructor() {
           super(...arguments);
           this.type = 'Test::TestRecord';
@@ -738,9 +748,9 @@ describe('QueryableCollectionMixin', () => {
       }
 
       @initialize
-      @mixin(Test.NS.QueryableCollectionMixin)
       @partOf(Test)
-      class Queryable extends LeanES.NS.Collection {
+      @mixin(Test.NS.QueryableCollectionMixin)
+      class Queryable extends Test.NS.Collection {
         @nameBy static __filename = 'Test';
         @meta static object = {};
         @property get delegate() {
