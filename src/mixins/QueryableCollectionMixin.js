@@ -30,7 +30,7 @@ export default (Module) => {
   Module.defineMixin(__filename, (BaseClass) => {
     @initializeMixin
     class Mixin<
-      C = CollectionInterface, D = RecordInterface
+      D = RecordInterface, C = CollectionInterface<D>
     > extends BaseClass implements QueryableCollectionInterface<C, D> {
       @meta static object = {};
 
