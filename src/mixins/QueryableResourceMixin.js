@@ -37,9 +37,9 @@ export default (Module) => {
       this.beforeHook('getQuery', {
         only: ['list']
       });
-      this.beforeHook('showNoHiddenByDefault', {
-        only: ['list']
-      });
+      // this.beforeHook('showNoHiddenByDefault', {
+      //   only: ['list']
+      // });
     })
     class Mixin extends BaseClass {
       @meta static object = {};
