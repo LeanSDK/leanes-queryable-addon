@@ -80,7 +80,7 @@ export default (Module) => {
         }).return('@doc');
         if (receivedQuery.$filter) {
           (() => {
-            const { error } = joi.validate(receivedQuery.$filter, joi.object());
+            const { error } = joi.object().validate(receivedQuery.$filter);
             if (error != null) {
               return this.context.throw(400, 'ValidationError: `$filter` must be an object', error.stack);
             }
@@ -89,7 +89,7 @@ export default (Module) => {
         }
         if (receivedQuery.$sort) {
           (() => {
-            const { error } = joi.validate(receivedQuery.$sort, joi.array().items(joi.object()));
+            const { error } = joi.array().items(joi.object()).validate(receivedQuery.$sort);
             if (error != null) {
               return this.context.throw(400, 'ValidationError: `$sort` must be an array');
             }
@@ -100,7 +100,7 @@ export default (Module) => {
         }
         if (receivedQuery.$limit) {
           (() => {
-            const { error } = joi.validate(receivedQuery.$limit, joi.number());
+            const { error } = joi.number().validate(receivedQuery.$limit);
             if (error != null) {
               return this.context.throw(400, 'ValidationError: `$limit` must be a number', error.stack);
             }
@@ -109,7 +109,7 @@ export default (Module) => {
         }
         if (receivedQuery.$offset) {
           (() => {
-            const { error } = joi.validate(receivedQuery.$offset, joi.number());
+            const { error } = joi.number().validate(receivedQuery.$offset);
             if (error != null) {
               return this.context.throw(400, 'ValidationError: `$offset` must be a number', error.stack);
             }
