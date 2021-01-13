@@ -1,5 +1,0 @@
---reporter spec
---check-leaks
---growl
---full-trace
-test/utils/*.js

@@ -1,0 +1,17 @@
+check-leaks: true
+color: true
+extension:
+  - 'js'
+file:
+  - './test/mixins/QueryableCollectionMixin-test.js'
+  # - './test/mixins/QueryableHttpCollectionMixin-test.js'
+  # - './test/mixins/QueryableResourceMixin-test.js'
+  # - './test/query/Query-test.js'
+full-trace: true
+growl: true
+recursive: false
+reporter: 'spec'
+# require: '@babel/register'
+require: 'register-babel.js'
+# spec: 'test/**/**/*-test.js'
+watch: false
